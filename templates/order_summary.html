@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+    <div class="container">
+
+    <div class="table-responsive text-nowrap">
+    <h2>Order Summary</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col ml-2">Items number</th>
+            <th scope="col">Item title</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Total Item Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order_item in order.items.all %}
+         <tr>
+            <td class="row ml-2">{{ forloop.counter }}</td>
+             <td>{{ order_item.item.title }}</td>
+             <td>{{ order_item.item.price }}</td>
+
+                {#  i used a font awesome icon and add links to remove item from the cart and add items    #}
+         <td>
+         <a href="{% url 'core:remove_single_item' order_item.item.slug %}"><i class="fas fa-minus mr-2"></i></a>
+                 {{ order_item.quantity }}
+         <a href="{% url 'core:add_to_cart'  order_item.item.slug %}"><i class="fa fa-plus ml-2"></i></a>
+         </td>
+
+{#  this is to check if there is a discount price in the to total discount price and if there is it would show the total of the discount price and if there #}
+        {#     is none it would show the total of the normal prce i defined the models in tyhe function#}
+            <td>
+                {% if order_item.item.discount_price %}
+                 ${{ order_item.get_total_discount_item_price }}
+               <span class="badge badge-primary">Saving ${{ order_item.get_amount_saved }}</span>
+             {% else %}
+                 ${{ order_item.get_total_item_price }}
+             {% endif %}
+                <a href="{% url 'core:remove_from_cart' order_item.item.slug %}" style="color: red"><i class="fa fa-trash float-right "></i></a>
+         </td>
+
+        </tr>
+        {% empty %}
+
+            <tr>
+            <td colspan="5">Your cart is empty</td>
+            </tr>
+            <tr>
+            <td colspan='5'><a class="btn btn-primary float-right" href="{% url 'core:home_page' %}">Continue Shopping</a>
+            </tr>
+
+        {% endfor %}
+        {% if order.get_total_price %}
+            <tr>
+            <td colspan='4' ><b>Order Total</b></td>
+            <td class="" ><b>${{ order.get_total_price }}</b></td>
+            </tr>
+
+            <tr >
+            <td colspan='5'><a class="btn btn-primary float-right" href="{% url 'core:home_page' %}">Continue Shopping</a>
+            <a class="btn btn-warning float-right mr-2" href="{% url 'core:checkout' %}">Proceed to check out</a></td>
+            </tr>
+        {% endif %}
+        </tbody>
+
+    </table>
+    </div>
+    </div>
+{% endblock content %}
+
